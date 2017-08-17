@@ -1,0 +1,25 @@
+---
+- name: "Install web server software"
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - nginx
+
+- name: "Remove default setup"
+  file:
+    state: absent
+    path: "/etc/nginx/sites-available/default"
+
+- template:
+    src: ../templates/tgc.j2
+    dest: /etc/nginx/sites-available/tgc.conf
+
+- name: "Enable TGC config"
+  file:
+    src: /etc/nginx/sites-available/tgc.conf
+    dest: /etc/nginx/sites-enabled/tgc.conf
+    state: link
+
+- name: "(Re)start Nginx"
+  service:
+    name: nginx
+    state: restarted

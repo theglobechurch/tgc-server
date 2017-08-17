@@ -1,0 +1,7 @@
+ansible/creds/*
+ansible/playbook.retry
+*.log
+/log/*
+/tmp/*
+*.log
+

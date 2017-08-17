@@ -1,0 +1,5 @@
+---
+- name: "Turn it on"
+  shell: bundle exec puma -e production -d -b unix://./tmp/sockets/puma.sock --pidfile ./tmp/pids/puma.pid
+  args:
+    chdir: "{{ deploy_location }}"
