@@ -1,11 +1,23 @@
 ---
-- name: Creates deploy dir
+- name: "Set deploy time"
+  set_fact:
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: "Register deploy location"
+  set_fact:
+    deploy_location: "{{ web_directory }}/deploy/{{ timestamp }}"
+
+- name: Creates directories
   file:
-    path: "{{ deploy_location }}"
+    path: "{{ item }}"
     state: directory
     owner: ubuntu
     group: webdeploy
     mode: 0775
+    recurse: yes
+  with_items:
+    - "{{ web_directory }}/deploy"
+    - "{{ uploads_location }}"
 
 - name: "Clone the repo"
   become: false
@@ -34,7 +46,7 @@
   become: false
   bundler:
     state: present
-    gemfile: "{{ deploy_location }}Gemfile"
+    gemfile: "{{ deploy_location }}/Gemfile"
 
 - name: "NPM install"
   become: false
@@ -64,3 +76,18 @@
   shell: bundle exec rails assets:precompile RAILS_ENV="production" 
   args:
     chdir: "{{ deploy_location }}"
+
+- name: "Remove rails upload folder (symlinked shortly)"
+  file:
+    state: absent
+    path: "{{ deploy_location }}/public/uploads"
+
+- name: symlink the uploads folder
+  file:
+    path: "{{ deploy_location }}/public/uploads"
+    src: "{{ uploads_location }}"
+    state: link 
+    force: yes
+
+- name: "Create symlink to live"
+  shell: "ln -s -n -f {{ deploy_location }} {{ live_location }}"

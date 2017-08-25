@@ -1,11 +1,13 @@
 upstream theglobechurch {
-  server unix://{{ deploy_location }}tmp/sockets/puma.sock;
+  server unix://{{ live_location }}/tmp/sockets/puma.sock;
 }
 
 server {
   listen 80;
   server_name tgc.dev www.tgc.dev;
-  root {{ deploy_location }}public;
+  root {{ live_location }}/public;
+
+  charset utf-8;
 
   location / {
     proxy_pass http://theglobechurch; # this should match the name of upstream directive
