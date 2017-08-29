@@ -1,0 +1,9 @@
+- name: "List old releases"
+  shell: "ls -t {{web_directory}}/deploy | tail -n +{{releases_to_keep + 1}}"
+  register: ls_output
+
+- name: "Remove old releases"
+  file:
+    name: "{{web_directory}}/deploy/{{ item }}"
+    state: absent
+  with_items: "{{ ls_output.stdout_lines }}"

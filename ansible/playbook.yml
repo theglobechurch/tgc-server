@@ -11,13 +11,13 @@
     - raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
     - setup: # aka gather_facts
   roles:
-    - general
-    - users
-    - ruby
-    - postgres
-    - node
+    # - general
+    # - users
+    # - ruby
+    # - postgres
+    # - node
+    - tidy-up
     - tgc-site
     - nginx
     - firewall
     - puma
-    - tidy-up

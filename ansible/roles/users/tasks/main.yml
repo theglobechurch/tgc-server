@@ -11,7 +11,11 @@
     groups: webdeploy
     state: present
 
-- name: "Put ubuntu user in group"
+- name: "Put users in group"
   user:
-      name: "ubuntu"
-      groups: webdeploy
+    name: "{{ item }}"
+    groups: webdeploy
+  with_items: 
+   - ubuntu
+   - jamesdoc
+   - "{{ deploy_user }}"
