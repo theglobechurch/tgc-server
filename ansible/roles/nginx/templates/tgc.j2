@@ -5,18 +5,23 @@ upstream theglobechurch {
 server {
   listen 80;
   server_name tgc.dev www.tgc.dev;
-  root {{ live_location }}/public;
-
+  root /srv/tgc/live/public;
+  disable_symlinks off;
   charset utf-8;
 
-  location / {
+  try_files $uri/index.html $uri @theglobechurch;
+
+  location @theglobechurch {
     proxy_pass http://theglobechurch; # this should match the name of upstream directive
-    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_redirect off;
   }
 
   location ~* ^/assets/ {
     # Per RFC2616 - 1 year maximum expiry
+    gzip_static on;
+    gzip on;
     expires 1y;
     add_header Cache-Control public;
 
@@ -27,4 +32,8 @@ server {
     add_header ETag "";
     break;
   }
+
+  error_page 500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
 }
