@@ -18,4 +18,5 @@
     - node
     - tgc-site
     - nginx
+    - firewall
     - puma
