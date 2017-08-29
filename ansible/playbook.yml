@@ -20,3 +20,4 @@
     - nginx
     - firewall
     - puma
+    - tidy-up

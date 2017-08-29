@@ -10,3 +10,5 @@ deploy_user: deploy
 web_directory: /srv/tgc
 live_location: "{{ web_directory }}/live"
 uploads_location: "{{ web_directory }}/uploads"
+
+releases_to_keep: 5
