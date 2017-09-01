@@ -2,6 +2,9 @@
   shell: "ls -t {{web_directory}}/deploy | tail -n +{{releases_to_keep + 1}}"
   register: ls_output
 
+- debug:
+    var: ls_output.stdout_lines
+
 - name: "Remove old releases"
   file:
     name: "{{web_directory}}/deploy/{{ item }}"

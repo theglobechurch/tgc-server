@@ -12,3 +12,6 @@ live_location: "{{ web_directory }}/live"
 uploads_location: "{{ web_directory }}/uploads"
 
 releases_to_keep: 5
+
+nginx_cache: /tmp/nginx_cache
+globe_cache_location: "{{ nginx_cache }}/tgc"

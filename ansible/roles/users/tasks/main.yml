@@ -10,6 +10,8 @@
     createhome: no
     groups: webdeploy
     state: present
+  with_items:
+  - "{{ deploy_user }}"
 
 - name: "Put users in group"
   user:

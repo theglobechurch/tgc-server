@@ -23,3 +23,8 @@
   args:
     chdir: "{{ live_location }}"
   when: puma_running.stat.exists == False
+
+- name: "Wipe out nginx cache"
+  file:
+    path: "{{ globe_cache_location }}/*"
+    state: absent

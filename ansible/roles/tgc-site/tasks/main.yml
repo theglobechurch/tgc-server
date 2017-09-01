@@ -48,22 +48,34 @@
     state: present
     gemfile: "{{ deploy_location }}/Gemfile"
 
+- name: "Check for package.json"
+  stat:
+    path: "{{ deploy_location }}/package.json"
+  register: packagejson
+
 - name: "NPM install"
   become: false
   npm:
     path: "{{ deploy_location }}"
+  when: packagejson.stat.exists
 
 - name: "Setup database"
   become: false
   shell: bundle exec rake db:migrate RAILS_ENV="production" 
   args:
     chdir: "{{ deploy_location }}"
+  environment:
+    RAILS_SECRET_KEY: "{{ lookup('password', 'creds/rails_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}"
+    DEVISE_SECRET_KEY: "{{ lookup('password', 'creds/devise_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}"
 
-- name: "Seed database"
-  become: false
-  shell: bundle exec rake db:seed
-  args:
-    chdir: "{{ deploy_location }}"
+# - name: "Seed database"
+#   become: false
+#   shell: bundle exec rake db:seed
+#   args:
+#     chdir: "{{ deploy_location }}"
+#   environment:
+#     RAILS_SECRET_KEY: "{{ lookup('password', 'creds/rails_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}"
+#     DEVISE_SECRET_KEY: "{{ lookup('password', 'creds/devise_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}"
 
 - name: "Gulp all the things"
   become: false
