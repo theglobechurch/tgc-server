@@ -4,4 +4,4 @@ ansible/playbook.retry
 /log/*
 /tmp/*
 *.log
-
+*.retry
