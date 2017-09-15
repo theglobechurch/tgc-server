@@ -7,22 +7,13 @@
     - /tmp/sockets
     - /tmp/pids
 
-- name: "Check if Puma pid exists already"
-  stat: 
-    path: "{{ live_location }}/tmp/pids/puma.pid"
-  register: puma_running
-
-- debug: var=puma_running
-
-- name: "Restart Puma"
-  shell: "kill -s SIGUSR2 `{{ live_location }}/tmp/pids/puma.pid`"
-  when: puma_running.stat.exists == True
+- name: "Kill all running puma instances"
+  shell: ps -aux | grep puma | grep -v grep | awk  '{print $2}' | xargs kill -9
 
 - name: "Turn it on"
   shell: bundle exec puma -e production -d -b unix://./tmp/sockets/puma.sock --pidfile ./tmp/pids/puma.pid
   args:
     chdir: "{{ live_location }}"
-  when: puma_running.stat.exists == False
 
 - name: "Wipe out nginx cache"
   file:
