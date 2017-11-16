@@ -17,5 +17,8 @@
 
 - name: "Wipe out nginx cache"
   file:
-    path: "{{ globe_cache_location }}/*"
+    path: "{{ nginx_cache }}"
     state: absent
+
+- name: restart nginx
+  service: name=nginx state=restarted
