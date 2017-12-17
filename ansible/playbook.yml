@@ -17,7 +17,7 @@
     - postgres
     - node
     - tidy-up
-    - tgc-site
+    - site-tgc
     - nginx
     - firewall
     - puma

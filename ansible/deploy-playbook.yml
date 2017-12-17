@@ -11,6 +11,6 @@
     - raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
     - setup: # aka gather_facts
   roles:
-    - tgc-site
+    - site-tgc
     - puma
     - tidy-up
