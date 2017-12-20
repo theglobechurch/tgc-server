@@ -7,8 +7,7 @@
   set_fact:
     one21_deploy: "{{ one21_directory }}/deploy/{{ timestamp }}"
 
-# Ensure Cert is upto date
-- name: "Create symlink to live"
+- name: "Ensure SSH cert is upto date"
   shell: "/opt/certbot/certbot-auto renew"
 
 - name: Creates directories

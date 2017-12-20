@@ -22,4 +22,7 @@ cache_one21_location: "{{ nginx_cache }}/one21"
 
 https: [
   { email: 'james@globe.church', domain: 'one21.org'},
+  { email: 'james@globe.church', domain: 'www.one21.org'},
+  { email: 'james@globe.church', domain: 'globe.church'},
+  { email: 'james@globe.church', domain: 'www.globe.church'},
 ]

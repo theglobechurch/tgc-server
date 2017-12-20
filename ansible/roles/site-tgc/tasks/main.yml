@@ -7,6 +7,9 @@
   set_fact:
     deploy_location: "{{ web_directory }}/deploy/{{ timestamp }}"
 
+- name: "Ensure SSH cert is upto date"
+  shell: "/opt/certbot/certbot-auto renew"
+
 - name: Creates directories
   file:
     path: "{{ item }}"
@@ -101,5 +104,26 @@
     state: link 
     force: yes
 
+# NGINX config
+- template:
+    src: ../templates/{{ item }}.j2
+    dest: /etc/nginx/sites-available/{{ item }}.conf
+  with_items:
+  - globe.church
+
+- name: "Enable config"
+  file:
+    src: /etc/nginx/sites-available/{{ item }}.conf
+    dest: /etc/nginx/sites-enabled/{{ item }}.conf
+    state: link
+  with_items:
+  - globe.church
+
+# Push it live
 - name: "Create symlink to live"
   shell: "ln -s -n -f {{ deploy_location }} {{ live_location }}"
+
+- name: "(Re)start Nginx"
+  service:
+    name: nginx
+    state: reloaded
