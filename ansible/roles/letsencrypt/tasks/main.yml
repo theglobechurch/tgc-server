@@ -1,0 +1,86 @@
+
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+  become: true
+
+- name: Install depends
+  apt:
+    name: "{{ item }}"
+    state: latest
+  become: true
+  with_items:
+    - python
+    - python-dev
+    - gcc
+    - dialog
+    - libaugeas0
+    - augeas-lenses
+    - libssl-dev
+    - libffi-dev
+    - ca-certificates
+    - python-pip
+    - python-virtualenv
+    - libpython-dev
+    - zlib1g-dev
+
+- name: Lets Encrypt client
+  git:
+    dest: /opt/certbot
+    clone: yes
+    repo: https://github.com/certbot/certbot
+    force: yes
+  become: true
+
+- name: Generate dhparams file
+  become: true
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+# Auto-renew certificates
+- name: Add crontab to renew certificates
+  cron:
+    minute: "30"
+    hour: "2"
+    weekday: "1"
+    job: "/opt/certbot/certbot-auto renew >> /var/log/le-renew.log"
+
+- name: Add crontab to reload server
+  cron: 
+    minute: "35"
+    hour: "2"
+    weekday: "1"
+    job: "/etc/init.d/nginx reload"
+
+- name: Discover keys
+  stat:
+    path: /etc/letsencrypt/live/{{ item.domain }}
+  become: true
+  with_items: "{{ https }}"
+  register: server_keys
+
+- debug:
+    msg: "{{ server_keys.results }}"
+
+#- debug:
+#    msg: "{{ server_keys.results[1].item.domain }}: {{ server_keys.results[1].stat.exists }}"
+
+- debug:
+    msg: "{{ item }}"
+  with_items: "{{ server_keys.results }}"
+
+- name: Create certificate
+  shell: ./certbot-auto certonly --email {{ item.item.email }} --standalone --agree-tos -d {{ item.item.domain }};
+  args:
+    chdir: /opt/certbot
+  with_items: "{{ server_keys.results }}"
+  when:
+    - item.stat.exists == false
+
+
+- name: reload nginx
+  service:
+    name: nginx
+    state: reloaded
+  become: true

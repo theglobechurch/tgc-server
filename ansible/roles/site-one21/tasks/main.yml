@@ -1,0 +1,86 @@
+---
+- name: "Set deploy time"
+  set_fact:
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: "Register deploy location"
+  set_fact:
+    one21_deploy: "{{ one21_directory }}/deploy/{{ timestamp }}"
+
+# Ensure Cert is upto date
+- name: "Create symlink to live"
+  shell: "/opt/certbot/certbot-auto renew"
+
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: ubuntu
+    group: webdeploy
+    mode: 0775
+    recurse: yes
+  with_items:
+    - "{{ one21_directory }}/deploy"
+
+# Download the files
+- name: "Clone one21 repo"
+  become: false
+  git:
+    repo: 'https://github.com/theglobechurch/121.git'
+    dest: "{{ one21_deploy }}"
+    force: yes
+
+# NPM setup and build
+- name: "NPM install"
+  become: false
+  shell: npm install
+  args:
+    chdir: "{{ one21_deploy }}"
+
+- file:
+    path: "{{ one21_deploy }}/src/index.css"
+    state: touch
+
+- name: "Build one21 package"
+  become: false
+  shell: npm run build
+  args:
+    chdir: "{{ one21_deploy }}"
+
+# Nginx config
+- name: "Install web server software"
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - nginx
+
+- template:
+    src: ../templates/{{ item }}.j2
+    dest: /etc/nginx/sites-available/{{ item }}.conf
+  with_items:
+  - one21.org
+
+- name: "Enable config"
+  file:
+    src: /etc/nginx/sites-available/{{ item }}.conf
+    dest: /etc/nginx/sites-enabled/{{ item }}.conf
+    state: link
+  with_items:
+  - one21.org
+
+# Push it live
+- name: "Create symlink to live"
+  shell: "ln -s -n -f {{ one21_deploy }}/build {{ one21_live }}"
+
+# Tidy up
+- name: "List old releases"
+  shell: "ls -t {{one21_directory}}/deploy | tail -n +{{releases_to_keep + 1}}"
+  register: ls_output
+
+- debug:
+    var: ls_output.stdout_lines
+
+- name: "Remove old releases"
+  file:
+    name: "{{one21_directory}}/deploy/{{ item }}"
+    state: absent
+  with_items: "{{ ls_output.stdout_lines }}"
