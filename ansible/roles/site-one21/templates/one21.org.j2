@@ -50,6 +50,12 @@ server {
     try_files $uri =404;
   }
 
+  location ~* (serviceworker\.js)$ {
+    add_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+    expires off;
+    proxy_no_cache 1;
+  }
+
   location / {
     try_files $uri $uri/ @rewrites;
   }
