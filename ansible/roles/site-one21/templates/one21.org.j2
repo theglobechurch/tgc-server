@@ -46,6 +46,10 @@ server {
   ssl_stapling on;
   ssl_stapling_verify on;
 
+  location /^(icons|static|images)$/ {
+    try_files $uri =404;
+  }
+
   location / {
     try_files $uri $uri/ @rewrites;
   }
