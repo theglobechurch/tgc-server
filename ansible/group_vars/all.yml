@@ -13,6 +13,7 @@ uploads_location: "{{ web_directory }}/uploads"
 
 one21_directory: /srv/one21
 one21_live: "{{ one21_directory }}/live"
+one21_next: "{{ one21_directory }}/next"
 
 releases_to_keep: 5
 
@@ -23,6 +24,7 @@ cache_one21_location: "{{ nginx_cache }}/one21"
 https: [
   { email: 'james@globe.church', domain: 'one21.org'},
   { email: 'james@globe.church', domain: 'www.one21.org'},
+  { email: 'james@globe.church', domain: 'next.one21.org'},
   { email: 'james@globe.church', domain: 'globe.church'},
   { email: 'james@globe.church', domain: 'www.globe.church'},
 ]

@@ -20,12 +20,13 @@
     recurse: yes
   with_items:
     - "{{ one21_directory }}/deploy"
+    - "{{ one21_directory }}/next"
 
 # Download the files
 - name: "Clone one21 repo"
   become: false
   git:
-    repo: 'https://github.com/theglobechurch/121.git'
+    repo: 'https://github.com/theglobechurch/one21.git'
     dest: "{{ one21_deploy }}"
     force: yes
 
