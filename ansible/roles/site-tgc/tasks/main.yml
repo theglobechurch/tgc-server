@@ -7,8 +7,8 @@
   set_fact:
     deploy_location: "{{ web_directory }}/deploy/{{ timestamp }}"
 
-- name: "Ensure SSH cert is upto date"
-  shell: "/opt/certbot/certbot-auto renew"
+# - name: "Ensure SSH cert is upto date"
+#   shell: "/opt/certbot/certbot-auto renew"
 
 - name: Creates directories
   file:
@@ -25,7 +25,7 @@
 - name: "Clone the repo"
   become: false
   git:
-    repo: 'https://github.com/theglobechurch/tgc.git'
+    repo: "https://github.com/theglobechurch/tgc.git"
     dest: "{{ deploy_location }}"
     force: yes
 
@@ -34,7 +34,7 @@
   lineinfile:
     dest: ~/.profile
     state: present
-    regexp: '^DEVISE_SECRET_KEY'
+    regexp: "^DEVISE_SECRET_KEY"
     line: "DEVISE_SECRET_KEY='{{ lookup('password', 'creds/devise_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}'"
 
 - name: "Add rails key"
@@ -42,7 +42,7 @@
   lineinfile:
     dest: ~/.profile
     state: present
-    regexp: '^RAILS_SECRET_KEY'
+    regexp: "^RAILS_SECRET_KEY"
     line: "RAILS_SECRET_KEY='{{ lookup('password', 'creds/rails_sk.txt length=64 chars=ascii_letters,digits,hexdigits') }}'"
 
 - name: "Install Gems"
@@ -64,7 +64,7 @@
 
 - name: "Setup database"
   become: false
-  shell: bundle exec rake db:migrate RAILS_ENV="production" 
+  shell: bundle exec rake db:migrate RAILS_ENV="production"
   args:
     chdir: "{{ deploy_location }}"
   environment:
@@ -88,7 +88,7 @@
 
 - name: "Precompile assets"
   become: false
-  shell: bundle exec rails assets:precompile RAILS_ENV="production" 
+  shell: bundle exec rails assets:precompile RAILS_ENV="production"
   args:
     chdir: "{{ deploy_location }}"
 
@@ -101,7 +101,7 @@
   file:
     path: "{{ deploy_location }}/public/uploads"
     src: "{{ uploads_location }}"
-    state: link 
+    state: link
     force: yes
 
 # NGINX config
@@ -109,7 +109,7 @@
     src: ../templates/{{ item }}.j2
     dest: /etc/nginx/sites-available/{{ item }}.conf
   with_items:
-  - globe.church
+    - globe.church
 
 - name: "Enable config"
   file:
@@ -117,7 +117,7 @@
     dest: /etc/nginx/sites-enabled/{{ item }}.conf
     state: link
   with_items:
-  - globe.church
+    - globe.church
 
 # Push it live
 - name: "Create symlink to live"

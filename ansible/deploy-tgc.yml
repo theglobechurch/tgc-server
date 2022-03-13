@@ -1,4 +1,4 @@
---- 
+---
 - name: Setup server
   hosts: all
   become: true # become sudo
